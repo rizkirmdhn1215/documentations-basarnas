@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  monthKey  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  entries Entry[]
+
+  @@index([monthKey])
+  @@index([deletedAt])
+}
+
+model Entry {
+  id          String   @id @default(uuid())
+  categoryId  String
+  monthKey    String
+  contentType String
+  contentLink String?
+  title       String
+  description String?
+  entryDate   DateTime
+  tags        String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  assets   Asset[]
+
+  @@index([categoryId])
+  @@index([monthKey])
+  @@index([createdAt])
+}
+
+model Asset {
+  id            String   @id @default(uuid())
+  entryId        String?
+  s3KeyOriginal  String   @unique
+  s3KeyPreview   String?
+  originalUrl    String
+  previewUrl     String?
+  filename       String
+  contentType    String
+  sizeBytes      Int
+  createdAt      DateTime @default(now())
+
+  entry Entry? @relation(fields: [entryId], references: [id], onDelete: SetNull)
+
+  @@index([entryId])
+  @@index([createdAt])
+}
