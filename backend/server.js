@@ -3,6 +3,7 @@ const cors = require('@fastify/cors');
 const multipart = require('@fastify/multipart');
 const databasePlugin = require('./plugins/database');
 const { uploadFile, getFileUrl, deleteFile, listFiles } = require('./utils/s3Helper');
+const tempStorage = require('./utils/tempStorage');
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
@@ -225,6 +226,18 @@ fastify.get('/api/s3/files', async (request, reply) => {
 // Start the server
 const start = async () => {
     try {
+        // Initialize temp storage directory
+        await tempStorage.initTempStorage();
+
+        // Start periodic cleanup of abandoned sessions (every hour)
+        setInterval(async () => {
+            try {
+                await tempStorage.cleanupAbandonedSessions();
+            } catch (error) {
+                console.error('Error during periodic cleanup:', error);
+            }
+        }, 60 * 60 * 1000); // 1 hour
+
         await fastify.listen({ port: PORT, host: '0.0.0.0' });
         console.log(`Server is running on http://localhost:${PORT}`);
     } catch (err) {

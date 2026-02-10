@@ -41,6 +41,9 @@ services:
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
       # JWT
       JWT_SECRET: ${JWT_SECRET:-supersecret_change_in_production}
+    volumes:
+      # Persist temp uploads directory
+      - temp_uploads:/app/temp_uploads
     depends_on:
       - postgres
     networks:
@@ -64,6 +67,7 @@ services:
 
 volumes:
   postgres_data:
+  temp_uploads:
 
 networks:
   basarnas-network:

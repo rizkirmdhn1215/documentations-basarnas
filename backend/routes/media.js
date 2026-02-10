@@ -1,5 +1,6 @@
 const { uploadMediaWithPreview } = require('../utils/mediaHelper');
 const { getFileUrl, deleteFile } = require('../utils/s3Helper');
+const tempStorage = require('../utils/tempStorage');
 
 async function mediaRoutes(fastify, options) {
 
@@ -139,6 +140,250 @@ async function mediaRoutes(fastify, options) {
             };
         }
     });
+
+    // ===== TWO-PHASE UPLOAD ENDPOINTS =====
+
+    // Upload file to temporary storage
+    fastify.post('/api/media/upload/temp', async (request, reply) => {
+        try {
+            const parts = request.parts();
+
+            let fileBuffer;
+            let filename;
+            let mimeType;
+            let sessionId;
+
+            for await (const part of parts) {
+                if (part.file) {
+                    filename = part.filename;
+                    mimeType = part.mimetype;
+                    fileBuffer = await part.toBuffer();
+                } else if (part.fieldname === 'sessionId') {
+                    sessionId = part.value;
+                }
+            }
+
+            if (!fileBuffer) {
+                reply.code(400);
+                return { success: false, error: 'No file uploaded' };
+            }
+
+            // Validate file type
+            if (!mimeType.startsWith('image/') && !mimeType.startsWith('video/')) {
+                reply.code(400);
+                return {
+                    success: false,
+                    error: 'Only images and videos are allowed'
+                };
+            }
+
+            // Generate session ID if not provided
+            if (!sessionId) {
+                sessionId = tempStorage.generateSessionId();
+            }
+
+            // Save to temp storage
+            const fileMetadata = await tempStorage.saveTempFile(
+                fileBuffer,
+                filename,
+                mimeType,
+                sessionId
+            );
+
+            return {
+                success: true,
+                message: 'File uploaded to temporary storage',
+                sessionId,
+                file: {
+                    fileId: fileMetadata.fileId,
+                    originalFilename: fileMetadata.originalFilename,
+                    mimeType: fileMetadata.mimeType,
+                    size: fileMetadata.size,
+                    uploadedAt: fileMetadata.uploadedAt
+                }
+            };
+
+        } catch (error) {
+            fastify.log.error(error);
+            reply.code(500);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    });
+
+    // Commit temp files to S3 and database
+    fastify.post('/api/media/upload/commit', async (request, reply) => {
+        try {
+            const { sessionId, files, metadata } = request.body;
+
+            if (!sessionId || !files || !Array.isArray(files)) {
+                reply.code(400);
+                return { success: false, error: 'Invalid request: sessionId and files array required' };
+            }
+
+            const { date, tags, description } = metadata || {};
+            const mediaDate = date || new Date().toISOString().split('T')[0];
+            const mediaTags = tags || [];
+            const mediaDescription = description || null;
+
+            const results = [];
+
+            // Process each file
+            for (const fileInfo of files) {
+                try {
+                    // Get temp file
+                    const { buffer, metadata: tempMetadata } = await tempStorage.getTempFile(
+                        sessionId,
+                        fileInfo.fileId
+                    );
+
+                    // Upload to S3 with preview
+                    const uploadResult = await uploadMediaWithPreview(
+                        buffer,
+                        tempMetadata.originalFilename,
+                        tempMetadata.mimeType
+                    );
+
+                    // Extract year and month from date
+                    const date = new Date(mediaDate);
+                    const year = date.getFullYear();
+                    const month = date.getMonth() + 1;
+
+                    // Determine file type
+                    const fileType = tempMetadata.mimeType.startsWith('image/') ? 'image' : 'video';
+
+                    // Insert into database
+                    const dbResult = await fastify.db.query(`
+                        INSERT INTO media_items (
+                            filename,
+                            original_name,
+                            file_type,
+                            mime_type,
+                            preview_s3_key,
+                            preview_s3_url,
+                            preview_file_size,
+                            original_s3_key,
+                            original_s3_url,
+                            original_file_size,
+                            media_date,
+                            year,
+                            month,
+                            description,
+                            tags
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                        RETURNING *
+                    `, [
+                        uploadResult.original.key,
+                        tempMetadata.originalFilename,
+                        fileType,
+                        tempMetadata.mimeType,
+                        uploadResult.preview.key,
+                        '',
+                        uploadResult.preview.size || buffer.length,
+                        uploadResult.original.key,
+                        '',
+                        buffer.length,
+                        mediaDate,
+                        year,
+                        month,
+                        mediaDescription,
+                        mediaTags
+                    ]);
+
+                    // Delete temp file after successful upload
+                    await tempStorage.deleteTempFile(sessionId, fileInfo.fileId);
+
+                    results.push({
+                        success: true,
+                        fileId: fileInfo.fileId,
+                        filename: tempMetadata.originalFilename,
+                        media: dbResult.rows[0]
+                    });
+
+                } catch (error) {
+                    fastify.log.error(`Error processing file ${fileInfo.fileId}:`, error);
+                    results.push({
+                        success: false,
+                        fileId: fileInfo.fileId,
+                        filename: fileInfo.originalFilename || 'unknown',
+                        error: error.message
+                    });
+                }
+            }
+
+            // Clean up session after processing all files
+            await tempStorage.deleteSession(sessionId);
+
+            const successCount = results.filter(r => r.success).length;
+            const failCount = results.filter(r => !r.success).length;
+
+            return {
+                success: true,
+                message: `Committed ${successCount} file(s) successfully${failCount > 0 ? `, ${failCount} failed` : ''}`,
+                results
+            };
+
+        } catch (error) {
+            fastify.log.error(error);
+            reply.code(500);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    });
+
+    // Cancel upload session and delete temp files
+    fastify.delete('/api/media/upload/cancel/:sessionId', async (request, reply) => {
+        try {
+            const { sessionId } = request.params;
+
+            if (!sessionId) {
+                reply.code(400);
+                return { success: false, error: 'Session ID required' };
+            }
+
+            await tempStorage.deleteSession(sessionId);
+
+            return {
+                success: true,
+                message: 'Upload session cancelled and temp files deleted'
+            };
+
+        } catch (error) {
+            fastify.log.error(error);
+            reply.code(500);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    });
+
+    // Cleanup abandoned sessions
+    fastify.get('/api/media/upload/cleanup', async (request, reply) => {
+        try {
+            const cleanedCount = await tempStorage.cleanupAbandonedSessions();
+
+            return {
+                success: true,
+                message: `Cleaned up ${cleanedCount} abandoned session(s)`,
+                count: cleanedCount
+            };
+
+        } catch (error) {
+            fastify.log.error(error);
+            reply.code(500);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    });
+
+    // ===== ORIGINAL UPLOAD ENDPOINT (kept for backward compatibility) =====
 
     // Upload new media with metadata
     fastify.post('/api/media/upload', async (request, reply) => {
