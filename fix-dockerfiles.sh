@@ -25,6 +25,9 @@ RUN npm install
 # Copy application code
 COPY . .
 
+# Diagnostic: List files to verify structure
+RUN ls -la
+
 # Build Next.js application
 RUN npm run build
 
@@ -42,7 +45,7 @@ RUN npm install --omit=dev
 # Copy built application from builder
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/next.config.mjs ./
 
 # Expose port
 EXPOSE 3000
