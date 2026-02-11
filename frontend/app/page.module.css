@@ -1,0 +1,433 @@
+.page {
+  min-height: 100vh;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Logo background with opacity */
+.page::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background-image: url('/basarnas-logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: var(--logo-opacity);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.page>* {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--basarnas-green);
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  background-image: url('/basarnas-logo.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+}
+
+.uploadButton {
+  background: var(--basarnas-red);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.uploadButton:hover {
+  background: var(--basarnas-red-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Tree view layout */
+.treeView {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.yearItem {
+  margin-bottom: 1rem;
+  border-left: 3px solid transparent;
+  transition: all var(--transition-normal);
+}
+
+.yearItem.expanded {
+  border-left-color: var(--basarnas-green);
+}
+
+.yearHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+  background: var(--bg-tertiary);
+}
+
+.yearHeader:hover {
+  background: var(--basarnas-green);
+  color: white;
+}
+
+.yearHeader:hover .folderIcon {
+  color: var(--basarnas-yellow);
+}
+
+.yearItem.expanded .yearHeader {
+  background: var(--basarnas-green);
+  color: white;
+}
+
+.yearItem.expanded .folderIcon {
+  color: var(--basarnas-yellow);
+}
+
+.folderIcon {
+  font-size: 2rem;
+  color: var(--basarnas-green);
+  transition: all var(--transition-fast);
+}
+
+.yearTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.expandIcon {
+  font-size: 1.2rem;
+  transition: transform var(--transition-fast);
+}
+
+.yearItem.expanded .expandIcon {
+  transform: rotate(90deg);
+}
+
+/* Months expand to the right */
+.monthsContainer {
+  margin-left: 3rem;
+  margin-top: 0.5rem;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--basarnas-yellow);
+}
+
+.monthItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+}
+
+.monthItem:hover {
+  background: var(--basarnas-yellow);
+  border-color: var(--basarnas-yellow-dark);
+  transform: translateX(5px);
+}
+
+.monthIcon {
+  font-size: 1.5rem;
+  color: var(--basarnas-green);
+}
+
+.monthName {
+  font-weight: 600;
+  font-size: 1rem;
+  flex: 1;
+}
+
+.monthCount {
+  background: var(--basarnas-green);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modalContent {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--basarnas-green);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.closeButton {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.closeButton:hover {
+  background: var(--basarnas-red);
+  color: white;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--basarnas-green);
+  box-shadow: 0 0 0 3px rgba(27, 122, 61, 0.1);
+}
+
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileInputLabel {
+  display: block;
+  padding: 2rem;
+  border: 3px dashed var(--border-color);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: var(--bg-tertiary);
+}
+
+.fileInputLabel:hover {
+  border-color: var(--basarnas-green);
+  background: rgba(27, 122, 61, 0.05);
+}
+
+.fileInputLabel.hasFile {
+  border-color: var(--basarnas-green);
+  background: rgba(27, 122, 61, 0.1);
+}
+
+.tagInput {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  min-height: 50px;
+  cursor: text;
+  background: var(--bg-secondary);
+}
+
+.tagInput:focus-within {
+  border-color: var(--basarnas-green);
+  box-shadow: 0 0 0 3px rgba(27, 122, 61, 0.1);
+}
+
+.tag {
+  background: var(--basarnas-green);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tagRemove {
+  background: transparent;
+  color: white;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tagRemove:hover {
+  opacity: 0.7;
+}
+
+.tagInputField {
+  flex: 1;
+  border: none;
+  outline: none;
+  min-width: 100px;
+  padding: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 1rem;
+  background: var(--basarnas-green);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--basarnas-green-dark);
+}
+
+.submitButton:disabled {
+  background: var(--border-color);
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .monthsContainer {
+    margin-left: 1.5rem;
+  }
+
+  .modalContent {
+    padding: 1.5rem;
+  }
+}

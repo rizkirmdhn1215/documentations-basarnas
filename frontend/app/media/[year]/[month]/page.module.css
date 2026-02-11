@@ -1,0 +1,471 @@
+/* Page Layout */
+.mediaPage {
+    min-height: 100vh;
+    padding: 2rem;
+    position: relative;
+    overflow-x: hidden;
+    padding-bottom: 5rem;
+}
+
+.mediaPage::before {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background-image: url('/basarnas-logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: var(--logo-opacity);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.mediaPage>* {
+    position: relative;
+    z-index: 1;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border-bottom: 3px solid var(--basarnas-green);
+}
+
+.backButton {
+    background: var(--basarnas-green);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.backButton:hover {
+    background: var(--basarnas-green-dark);
+}
+
+.pageTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    background-image: url('/basarnas-logo.png');
+    background-size: cover;
+    border-radius: 50%;
+}
+
+.breadcrumb {
+    color: var(--basarnas-green);
+    font-size: 1.1rem;
+}
+
+/* HERO CAROUSEL */
+.heroSection {
+    margin-bottom: 4rem;
+    position: relative;
+}
+
+.heroHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-left: 0.5rem;
+}
+
+.heroTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Updated Hero Container for Absolute Logic */
+.heroContainer {
+    position: relative;
+    height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+    overflow: hidden;
+    padding: 2rem 0;
+    width: 100%;
+}
+
+.heroTrack {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.heroCard {
+    width: 320px;
+    height: 320px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -160px;
+    margin-top: -160px;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    background: var(--bg-secondary);
+    border: 4px solid transparent;
+    transform-origin: center center;
+}
+
+.heroCard.active {
+    z-index: 20;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    border-color: var(--basarnas-green);
+    filter: none;
+    opacity: 1;
+}
+
+.heroCard.blurred {
+    z-index: 10;
+    opacity: 0.7;
+    filter: blur(2px) grayscale(30%);
+}
+
+.heroCard.hidden {
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.heroImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.heroOverlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.heroCard.active .heroOverlay {
+    opacity: 1;
+}
+
+.heroNavBtn {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 30;
+}
+
+.heroNavBtn:hover {
+    background: var(--basarnas-green);
+    color: white;
+    border-color: var(--basarnas-green);
+    transform: scale(1.1);
+}
+
+.heroNav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.heroDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.heroDot.active {
+    background: var(--basarnas-green);
+    width: 30px;
+    border-radius: 10px;
+}
+
+/* TAG LISTS */
+.tagSections {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.tagHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.tagTitle {
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-primary);
+}
+
+/* Navigation Buttons for Tag Lists */
+.carouselBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+}
+
+.carouselBtn:hover {
+    background: var(--basarnas-green);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carouselBtnLeft {
+    left: 0;
+}
+
+.carouselBtnRight {
+    right: 0;
+}
+
+.cardRow {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding: 1rem 0.5rem 2rem 0.5rem;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+}
+
+.cardRow::-webkit-scrollbar {
+    display: none;
+}
+
+.detailCard {
+    flex: 0 0 25%;
+    min-width: 280px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.detailCard:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--basarnas-green);
+}
+
+.detailImageWrapper {
+    position: relative;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    cursor: pointer;
+}
+
+.detailImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.detailCard:hover .detailImage {
+    transform: scale(1.1);
+}
+
+.cardInfo {
+    padding: 1rem;
+}
+
+.cardTitle {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cardMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.iconBtn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconBtn:hover {
+    background: var(--basarnas-red);
+    color: white;
+}
+
+/* Lightbox - Strict Separation */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.lightboxContent {
+    display: flex;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    width: 80vw;
+    /* Total width 80% */
+    height: 80vh;
+    /* 80% Screen Height */
+    overflow: hidden;
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
+}
+
+.lightboxMedia {
+    /* Strictly 50vw out of 80vw = 62.5% */
+    /* Using explicit width to stop flex overlap */
+    flex: 0 0 62.5%;
+    width: 62.5%;
+    max-width: 62.5%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    /* Contain inner image */
+}
+
+.lightboxImg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* No zoom, just fit */
+}
+
+.lightboxInfo {
+    /* Strictly 30vw out of 80vw = 37.5% */
+    flex: 0 0 37.5%;
+    width: 37.5%;
+    max-width: 37.5%;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    overflow-y: auto;
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 1024px) {
+    .lightboxContent {
+        flex-direction: column;
+    }
+
+    .lightboxMedia {
+        flex: 2;
+        height: 60vh;
+    }
+
+    .lightboxInfo {
+        flex: 1;
+        max-width: none;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .detailCard {
+        flex: 0 0 80%;
+    }
+
+    .heroCard {
+        width: 220px;
+        height: 220px;
+        margin-left: -110px;
+        margin-top: -110px;
+    }
+}
