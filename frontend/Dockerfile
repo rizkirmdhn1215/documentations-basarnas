@@ -14,6 +14,10 @@ COPY . .
 # Diagnostic: List files to verify structure
 RUN ls -la
 
+# Accept API URL as build argument (NEXT_PUBLIC_ vars are baked at build time)
+ARG NEXT_PUBLIC_API_BASE_URL=/api
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
 # Build Next.js application
 RUN npm run build
 
