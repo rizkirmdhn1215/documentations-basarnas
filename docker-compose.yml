@@ -39,6 +39,8 @@ services:
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
       # JWT
       JWT_SECRET: ${JWT_SECRET:-supersecret_change_in_production}
+    dns:
+      - 169.254.169.253   # AWS VPC DNS resolver for private hostnames (RDS, etc.)
     volumes:
       # Persist temp uploads directory
       - temp_uploads:/app/temp_uploads
