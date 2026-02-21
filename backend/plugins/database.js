@@ -24,7 +24,7 @@ async function databasePlugin(fastify, options) {
         fastify.log.info(`✅ Database connected successfully at ${result.rows[0].now}`);
         client.release();
     } catch (err) {
-        fastify.log.error('❌ Database connection failed:', err.message);
+        fastify.log.error({ err }, '❌ Database connection failed:');
         fastify.log.warn('Server will start without database connection. Please check your RDS settings.');
         // Don't throw - allow server to start for debugging
     }
